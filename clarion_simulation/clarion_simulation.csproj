@@ -32,6 +32,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HelloWorld - Simple.cs" />
+    <Compile Include="PrisonersDilemma - Simple.cs" />
+    <Compile Include="Inductive Reasoning - Background Knowledge Effect.cs" />
+    <Compile Include="Inductive Reasoning - Diversity Effect.cs" />
+    <Compile Include="Inductive Reasoning - Similarity Effect.cs" />
+    <Compile Include="Inductive Reasoning - Typicality Effect.cs" />
+    <Compile Include="Process Control.cs" />
+    <Compile Include="Reasoner - Full.cs" />
+    <Compile Include="Reasoner - Simple.cs" />
+    <Compile Include="SerializationDemo.cs" />
+    <Compile Include="Identification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
