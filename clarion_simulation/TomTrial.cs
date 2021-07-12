@@ -12,46 +12,66 @@ namespace Clarion.Samples
 {
     public class TomTrial
     {
+        static Agent Participant;
+        static int NumberTrials = 10000;
+        static int CorrectCounter = 0;
+        static int progress = 0;
+
+        static DimensionValuePair box;
+        static DimensionValuePair basket;
+        static DimensionValuePair marbles;
+        static DimensionValuePair location;
+        static DimensionValuePair sayWhat;
+
+        static ExternalActionChunk sayBox;
+        static ExternalActionChunk sayBasket;
+
+        private static StreamWriter logFile;
+        private static TextWriter textWriter;
+
         static void Main(string[] args)
         {
             //Initialize the task
             Console.WriteLine("Initializing the Simple Hello World Task");
+            InitializeWorld();
+            InitializeAgent();
+            Run();
+            FinishUp();
 
-            int CorrectCounter = 0;
-            int NumberTrials = 10000;
-            int progress = 0;
+        }
 
+        public static void InitializeWorld()
+        {
             //Allows to track inner workings of the agent. Can be turned on/off
             //See 'useful features' guide for more information
             World.LoggingLevel = TraceLevel.Off;
 
-            //Write the output to a txt file instead of the console
-            //This is not a requirement
-            TextWriter orig = Console.Out;
-            StreamWriter sw = File.CreateText("TomTrial.txt");
-
             //Describes the simulation environment
-            DimensionValuePair box = World.NewDimensionValuePair("Item", "Box");
-            DimensionValuePair basket = World.NewDimensionValuePair("Item", "Basket");
-            DimensionValuePair marbles = World.NewDimensionValuePair("Item", "Marbles");
-            DimensionValuePair location = World.NewDimensionValuePair("Marbles", "Box");
-            DimensionValuePair sayWhat = World.NewDimensionValuePair("YourAction", "Where are the marbles?");
+            box = World.NewDimensionValuePair("Item", "Box");
+            basket = World.NewDimensionValuePair("Item", "Basket");
+            marbles = World.NewDimensionValuePair("Item", "Marbles");
+            location = World.NewDimensionValuePair("Marbles", "Box");
+            sayWhat = World.NewDimensionValuePair("YourAction", "Where are the marbles?");
 
 
             //Specifies external actions that the agent can perform
-            ExternalActionChunk sayBox = World.NewExternalActionChunk("Box");
-            ExternalActionChunk sayBasket = World.NewExternalActionChunk("Basket");
+            sayBox = World.NewExternalActionChunk("Box");
+            sayBasket = World.NewExternalActionChunk("Basket");
 
+        }
+
+        public static void InitializeAgent()
+        {
             //Initialize the Agent
             //The label is optional but useful if we later want to retrieve
             //it from World using Get.
             //This agent is currently "empty" it does not know anything about the world
-            Agent John = World.NewAgent("John");
+            Participant = World.NewAgent("John");
 
             //Initialise agent with Implicit Decision Network (IDN) in the bottom level of ACS
             //AgentInitializer is an important object. This is how we attach
             //implicit components, meta-cognitive modules etc. to our agent.
-            SimplifiedQBPNetwork net = AgentInitializer.InitializeImplicitDecisionNetwork(John, SimplifiedQBPNetwork.Factory);
+            SimplifiedQBPNetwork net = AgentInitializer.InitializeImplicitDecisionNetwork(Participant, SimplifiedQBPNetwork.Factory);
 
             //Further initialises our IDN
             //This will give our agent the ability to choose actions based on the sensory
@@ -67,15 +87,23 @@ namespace Clarion.Samples
 
             //Once all specifications are finished. We MUST use Commit.
             //This will allow our agent to starting using the sensory information and actions we have specified.
-            John.Commit(net);
+            Participant.Commit(net);
 
             //Parameters to optimise the agent's performance
             net.Parameters.LEARNING_RATE = 1;
-            John.ACS.Parameters.PERFORM_RER_REFINEMENT = false;
+            Participant.ACS.Parameters.PERFORM_RER_REFINEMENT = false;
+        }
+
+        private static void Run()
+        {
+            //Write the output to a txt file instead of the console
+            //This is not a requirement
+            textWriter = Console.Out;
+            logFile = File.CreateText("TomTrial2.txt");
 
             //Run the task
             Console.WriteLine("Running the Simple Hello World Task");
-            Console.SetOut(sw);
+            Console.SetOut(logFile);
 
             //Sensory information pointer hold onto the sensory information for the current perception-action cycle
             SensoryInformation si;
@@ -87,19 +115,19 @@ namespace Clarion.Samples
             {
                 //We obtain sensory information objects from the world by calling the
                 //NewSensoryInformation method and specifying the agent for whom the sensory information is intended.
-                si = World.NewSensoryInformation(John);
-              
+                si = World.NewSensoryInformation(Participant);
+
                 //Ask where the marbles are
-                si.Add(sayWhat, John.Parameters.MAX_ACTIVATION);
-              
+                si.Add(sayWhat, Participant.Parameters.MAX_ACTIVATION);
+
                 //Perceive the sensory information
                 //The Perceive method initiates the process of decision-making
-                John.Perceive(si);
+                Participant.Perceive(si);
 
                 //Choose an action
                 //GetChosenExternalAction returns the action that is chosen by John
                 //(given the current sensory information)
-                chosen = John.GetChosenExternalAction(si);
+                chosen = Participant.GetChosenExternalAction(si);
 
                 //Deliver appropriate feedback to the agent, either reward or punishment
                 //notice that we are able to compare our actions and sensory information
@@ -107,7 +135,7 @@ namespace Clarion.Samples
                 if (chosen == sayBox)
                 {
                     //The agent said "Hello".
-                    if (si[sayWhat] == John.Parameters.MAX_ACTIVATION)
+                    if (si[sayWhat] == Participant.Parameters.MAX_ACTIVATION)
                     {
                         //The agent responded correctly
                         Trace.WriteLineIf(World.LoggingSwitch.TraceWarning, "John was correct");
@@ -118,24 +146,28 @@ namespace Clarion.Samples
                         //Calling this method automatically initiates a round of learning inside John.
                         //Feedback in this case is 0-1 but it does not need to be. See the “Intermediate ACS Setup” for
                         //additional considerations regarding this.
-                        John.ReceiveFeedback(si, 1.0);
+                        Participant.ReceiveFeedback(si, 1.0);
                     }
                     else
                     {
                         //The agent responded incorrectly
                         Trace.WriteLineIf(World.LoggingSwitch.TraceWarning, "John was incorrect");
                         //Give negative feedback.
-                        John.ReceiveFeedback(si, 0.0);
+                        Participant.ReceiveFeedback(si, 0.0);
                     }
                 }
 
-                Console.SetOut(orig);
+                Console.SetOut(textWriter);
                 progress = (int)(((double)(i + 1) / (double)NumberTrials) * 100);
                 Console.CursorLeft = 0;
                 Console.Write(progress + "% Complete..");
-                Console.SetOut(sw);
+                Console.SetOut(logFile);
             }
 
+        }
+
+        private static void FinishUp()
+        {
             //Report Results
 
             Console.WriteLine("Reporting Results for the False-belief Task");
@@ -143,16 +175,16 @@ namespace Clarion.Samples
                 (int)Math.Round(((double)CorrectCounter / (double)NumberTrials) * 100) + "%)");
 
             Console.WriteLine("At the end of the task, John had learned the following rules:");
-            foreach (var i in John.GetInternals(Agent.InternalContainers.ACTION_RULES))
+            foreach (var i in Participant.GetInternals(Agent.InternalContainers.ACTION_RULES))
                 Console.WriteLine(i);
 
-            sw.Close();
-            Console.SetOut(orig);
+            logFile.Close();
+            Console.SetOut(textWriter);
             Console.CursorLeft = 0;
             Console.WriteLine("100% Complete..");
             //Kill the agent to end the task
             Console.WriteLine("Killing Agent to end the program");
-            John.Die();
+            Participant.Die();
             Console.WriteLine("Agent is Dead");
 
             Console.WriteLine("The Simple Hello World Task has finished");

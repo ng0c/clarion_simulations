@@ -32,8 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TomTrial.cs" />
-    <Compile Include="PrisonersDilemma - Simple.cs" />
-    <Compile Include="HelloWorld - Simple.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
