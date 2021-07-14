@@ -55,7 +55,7 @@ namespace Clarion.Samples
             basket = World.NewDimensionValuePair("Item", "Basket");
             ball = World.NewDimensionValuePair("Item", "Ball");
             location = World.NewDimensionValuePair("Ball is in", "Box");
-            sayWhat = World.NewDimensionValuePair("YourAction", "Where are the marbles?");
+            sayWhat = World.NewDimensionValuePair("YourAction", "Where is the ball?");
 
 
             //Specifies external actions that the agent can perform
