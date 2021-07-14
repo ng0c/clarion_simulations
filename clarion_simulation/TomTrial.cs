@@ -17,9 +17,11 @@ namespace Clarion.Samples
         static int CorrectCounter = 0;
         static int progress = 0;
 
+        static DimensionValuePair sally;
+        static DimensionValuePair anne;
         static DimensionValuePair box;
         static DimensionValuePair basket;
-        static DimensionValuePair marbles;
+        static DimensionValuePair ball;
         static DimensionValuePair location;
         static DimensionValuePair sayWhat;
 
@@ -32,7 +34,7 @@ namespace Clarion.Samples
         static void Main(string[] args)
         {
             //Initialize the task
-            Console.WriteLine("Initializing the Simple Hello World Task");
+            Console.WriteLine("Initializing the False-Belief Task");
             InitializeWorld();
             InitializeAgent();
             Run();
@@ -47,10 +49,12 @@ namespace Clarion.Samples
             World.LoggingLevel = TraceLevel.Off;
 
             //Describes the simulation environment
+            sally = World.NewDimensionValuePair("Person", "Sally");
+            anne = World.NewDimensionValuePair("Person", "Anne");
             box = World.NewDimensionValuePair("Item", "Box");
             basket = World.NewDimensionValuePair("Item", "Basket");
-            marbles = World.NewDimensionValuePair("Item", "Marbles");
-            location = World.NewDimensionValuePair("Marbles", "Box");
+            ball = World.NewDimensionValuePair("Item", "Ball");
+            location = World.NewDimensionValuePair("Ball is in", "Box");
             sayWhat = World.NewDimensionValuePair("YourAction", "Where are the marbles?");
 
 
@@ -68,7 +72,8 @@ namespace Clarion.Samples
             //This agent is currently "empty" it does not know anything about the world
             Participant = World.NewAgent("John");
 
-            //Initialise agent with Implicit Decision Network (IDN) in the bottom level of ACS
+            //Initialise agent with Implicit Decision Network (IDN) (the most basic reinforcement learning neural network)
+            //in the bottom level of ACS.
             //AgentInitializer is an important object. This is how we attach
             //implicit components, meta-cognitive modules etc. to our agent.
             SimplifiedQBPNetwork net = AgentInitializer.InitializeImplicitDecisionNetwork(Participant, SimplifiedQBPNetwork.Factory);
@@ -76,9 +81,11 @@ namespace Clarion.Samples
             //Further initialises our IDN
             //This will give our agent the ability to choose actions based on the sensory
             //information it receives from the world.
+            net.Input.Add(sally);
+            net.Input.Add(anne);
             net.Input.Add(box);
             net.Input.Add(basket);
-            net.Input.Add(marbles);
+            net.Input.Add(ball);
             net.Input.Add(location);
             net.Input.Add(sayWhat);
 
@@ -118,6 +125,7 @@ namespace Clarion.Samples
                 si = World.NewSensoryInformation(Participant);
 
                 //Ask where the marbles are
+                si.Add(location, Participant.Parameters.MAX_ACTIVATION);
                 si.Add(sayWhat, Participant.Parameters.MAX_ACTIVATION);
 
                 //Perceive the sensory information
@@ -134,8 +142,8 @@ namespace Clarion.Samples
                 //objects using the standard “==” comparator
                 if (chosen == sayBox)
                 {
-                    //The agent said "Hello".
-                    if (si[sayWhat] == Participant.Parameters.MAX_ACTIVATION)
+                    //The agent said "Box".
+                    if (si[box] == Participant.Parameters.MAX_ACTIVATION)
                     {
                         //The agent responded correctly
                         Trace.WriteLineIf(World.LoggingSwitch.TraceWarning, "John was correct");
