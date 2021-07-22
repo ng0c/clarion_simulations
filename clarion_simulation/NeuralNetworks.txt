@@ -1,0 +1,16 @@
+﻿Neural Networks available in the Clarion ibrary
+
+HopfieldNetwork
+    - neural network to store and retrieve memory like the human brain
+    - a neuron either is on (firing) or is off (not firing), a vast
+      simplification of the real situation
+
+QBPNetwork (Q-learning with backpropagation neural network)
+
+SimplifiedQBPNetwork (simplified version of QBNetwork)
+
+BPNetwork (a 3-layer backpropagation neural network)
+    - Backpropagation is the essence of neural network training. It is the method
+      of fine-tuning the weights of a neural network based on the error rate obtained
+      in the previous epoch (i.e., iteration). Proper tuning of the weights allows
+      you to reduce error rates and make the model reliable by increasing its generalization.

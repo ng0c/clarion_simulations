@@ -32,6 +32,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TomTrial.cs" />
+    <Compile Include="TomTrialV2.cs" />
+    <Compile Include="XOR.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NeuralNetworks.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
